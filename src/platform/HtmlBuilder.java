@@ -17,9 +17,15 @@ public class HtmlBuilder {
         this.title = title;
     }
 
-    public void setPreWrapper(String data) {
+    public void setPreWrapper(String data, String id) {
         if (data != null && !"".equals(data)) {
-            this.bodyContent.add("<pre>" + data + "</pre>");
+            StringBuilder spanWrapper = new StringBuilder();
+            spanWrapper.append("<pre");
+            if (id != null) {
+                spanWrapper.append(" id=\"" + id + "\"");
+            }
+            spanWrapper.append(">" + data + "</pre>");
+            this.bodyContent.add(spanWrapper.toString());
         }
     }
 

@@ -1,3 +1,5 @@
+platform/TestDrive.java
+ platform.TestDrive
 platform/HtmlBuilder.java
  platform.HtmlBuilder
 platform/CodeSharingPlatform.java

@@ -10,25 +10,27 @@ public class Response {
 
     public Response(String code) {
         this.code = code.replace("\n", "\\n");
+        this.format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         this.date = LocalDateTime.now();
     }
 
     public String getHtml() {
         HtmlBuilder htmlBuilder = new HtmlBuilder();
         if (date != null) {
-            this.format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            htmlBuilder.setSpanWrapper(date.format(format), null);
+            htmlBuilder.setSpanWrapper(date.format(format), "load_date");
         }
         if (code != null) {
-            htmlBuilder.setTextAreaWrapper(code);
+            htmlBuilder.setPreWrapper(code, "code_snippet");
             htmlBuilder.setTitle("Code");
         } else {
+            htmlBuilder.setTextAreaWrapper("...");
             htmlBuilder.setTitle("Create");
         }
         return htmlBuilder.getHtml();
     }
 
     public Response() {
+        this.format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     }
 
     public String getCode() {
@@ -50,8 +52,12 @@ public class Response {
     public String getJson() {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
-        builder.append("\"code\":\"").append(code).append("\"");
-        builder.append(",\"date\":\"").append(date.format(format)).append("\"");
+        if (code != null) {
+            builder.append("\"code\":\"").append(code.replace("\n", "\\n")).append("\"");
+        }
+        if (date != null) {
+            builder.append(",\"date\":\"").append(date.format(format)).append("\"");
+        }
         builder.append("}");
         return builder.toString();
     }
