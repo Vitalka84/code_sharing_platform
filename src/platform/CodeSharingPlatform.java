@@ -1,18 +1,14 @@
 package platform;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -23,17 +19,20 @@ public class CodeSharingPlatform {
         SpringApplication.run(CodeSharingPlatform.class, args);
     }
 
-    //    @GetMapping("/{endPoint}")
     @GetMapping({"/", "/{endPoint}"})
+    @ResponseBody
     public ResponseEntity<String> httpHandler(@PathVariable(value = "endPoint", required = false)
-                                                      Optional<String> endPoint) {
+                                                      Optional<String> endPoint, @RequestBody(required = false) String code) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Content-Type", "text/html");
         switch (endPoint.isPresent() ? endPoint.get() : "error") {
             case "code":
+                Response response = new Response();
+                response.setCode(code != null ? code : "...");
+                response.setDate(LocalDateTime.now());
                 return ResponseEntity.ok()
                         .headers(httpHeaders)
-                        .body(new Response("public static void main(String[] args) {\n    SpringApplication.run(CodeSharingPlatform.class, args);\n}").getHtml());
+                        .body(response.getHtml());
             default:
                 return null;
 
@@ -55,4 +54,6 @@ public class CodeSharingPlatform {
 
         }
     }
+
+//    @PostMapping
 }
