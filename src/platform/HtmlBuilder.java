@@ -7,6 +7,7 @@ public class HtmlBuilder {
     String title;
     List<String> bodyContent;
     List<String> jsFunctions;
+    List<DivBlockBuilder> divBlocks;
 
     public HtmlBuilder() {
         this.bodyContent = new ArrayList<>();
@@ -15,6 +16,10 @@ public class HtmlBuilder {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setDivBlocks(List<DivBlockBuilder> divBlocks) {
+        this.divBlocks = divBlocks;
     }
 
     public void setPreWrapper(String data, String id) {
@@ -57,6 +62,11 @@ public class HtmlBuilder {
         res.append(this.title == null ? "Code" : this.title);
         res.append("</title>");
         res.append("<body>");
+        if (divBlocks != null) {
+            for (DivBlockBuilder divBlock : divBlocks) {
+                res.append(divBlock.toString());
+            }
+        }
         for (String body : bodyContent) {
             res.append(body);
         }
