@@ -23,6 +23,7 @@ public class CodeSharingPlatform {
     Map<Integer, Response> savedRequests = new HashMap<>();
     Logger logger = LoggerFactory.getLogger(CodeSharingPlatform.class);
     DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    Response[] latest;
 
     public static void main(String[] args) {
         SpringApplication.run(CodeSharingPlatform.class, args);
@@ -40,12 +41,11 @@ public class CodeSharingPlatform {
             } else if ("latest".equals(action)) {
                 if (!savedRequests.isEmpty()) {
                     List<DivBlockBuilder> divBlockBuilderList = new ArrayList<>();
-                    int maxMapKey = savedRequests.keySet().stream().max(Integer::compareTo).orElse(0);
-                    for (int i = 0; i < 10 && maxMapKey > 0; i++, maxMapKey--) {
+                    latest = getLatest(10);
+                    for (int i = 0; i < latest.length; i++) {
                         DivBlockBuilder divBlock = new DivBlockBuilder();
-                        Response response = savedRequests.get(maxMapKey);
-                        divBlock.addTag(response.getDate().format(format), "span", "load_date", null);
-                        divBlock.addTag(response.getCode(), "pre", "code_snippet", null);
+                        divBlock.addTag(latest[i].getDate().format(format), "span", "load_date", null);
+                        divBlock.addTag(latest[i].getCode(), "pre", "code_snippet", null);
                         divBlockBuilderList.add(divBlock);
                     }
                     HtmlBuilder latestResponse = new HtmlBuilder();
@@ -82,7 +82,19 @@ public class CodeSharingPlatform {
         if ("code".equals(endPoint)) {
             if ("latest".equals(action)) {
                 if (!savedRequests.isEmpty()) {
-                    response = savedRequests.get(savedRequests.keySet().stream().max(Integer::compareTo).orElse(0));
+                    latest = getLatest(10);
+                    StringBuilder jsonRespons = new StringBuilder();
+                    jsonRespons.append("[");
+                    for (int i = 0; i < latest.length; i++) {
+                        jsonRespons.append(latest[i].getJson());
+                        if (i < latest.length - 1) {
+                            jsonRespons.append(",");
+                        }
+                    }
+                    jsonRespons.append("]");
+                    return ResponseEntity.ok()
+                            .headers(httpHeaders)
+                            .body(jsonRespons.toString());
                 } else {
                     response.setCode("no saved code");
                 }
@@ -120,5 +132,15 @@ public class CodeSharingPlatform {
         } else {
             return null;
         }
+    }
+
+    private Response[] getLatest(int count) {
+        int countSavedRequests = savedRequests.keySet().stream().max(Integer::compareTo).orElse(0);
+        int arrayLength = countSavedRequests > count ? count : countSavedRequests;
+        Response[] res = new Response[arrayLength];
+        for (int i = 0; i < arrayLength; i++) {
+            res[i] = savedRequests.get(countSavedRequests - i);
+        }
+        return res;
     }
 }
