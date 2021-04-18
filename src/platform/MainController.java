@@ -12,9 +12,7 @@ import platform.storage.SharedCodeDAO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class MainController {
@@ -22,9 +20,7 @@ public class MainController {
     private SharedCodeDAO sharedCodeDAO;
 
     Response response;
-    Map<Integer, Response> savedRequests = new HashMap<>();
     Logger logger = LoggerFactory.getLogger(MainController.class);
-    Response[] latest;
     List<SharedCode> latestN;
     SharedCode sharedCode;
 
