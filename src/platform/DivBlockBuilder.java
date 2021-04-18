@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DivBlockBuilder {
-    List<String> divContent;
-    String cssId;
-    String cssClass;
+    private List<String> divContent;
+    private String cssId;
+    private String cssClass;
+    private StringBuilder newTag;
 
     public DivBlockBuilder() {
         this.divContent = new ArrayList<>();
@@ -22,7 +23,7 @@ public class DivBlockBuilder {
 
     public void addTag(String data, String wrapper, String id, String cssClass) {
         if (data != null && !"".equals(data)) {
-            StringBuilder newTag = new StringBuilder();
+            newTag = new StringBuilder();
             newTag.append("<" + wrapper);
             if (id != null) {
                 newTag.append(" id=\"" + id + "\"");
@@ -33,6 +34,21 @@ public class DivBlockBuilder {
             newTag.append(">" + data + "</" + wrapper + ">");
             this.divContent.add(newTag.toString());
         }
+    }
+
+    public String genTag(String data, String wrapper, String id, String cssClass) {
+        newTag = new StringBuilder();
+        if (data != null && !"".equals(data)) {
+            newTag.append("<" + wrapper);
+            if (id != null) {
+                newTag.append(" id=\"" + id + "\"");
+            }
+            if (cssClass != null) {
+                newTag.append(" class=\"" + cssClass + "\"");
+            }
+            newTag.append(">" + data + "</" + wrapper + ">");
+        }
+        return newTag.toString();
     }
 
     @Override

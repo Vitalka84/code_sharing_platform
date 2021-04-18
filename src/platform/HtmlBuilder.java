@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HtmlBuilder {
-    String title;
-    List<String> bodyContent;
-    List<String> jsFunctions;
-    List<String> linksList;
-    List<String> scriptTagsList;
-    List<DivBlockBuilder> divBlocks;
+    private String title;
+    private List<String> bodyContent;
+    private List<String> jsFunctions;
+    private List<String> linksList;
+    private List<String> scriptTagsList;
+    private List<DivBlockBuilder> divBlocks;
 
     public HtmlBuilder() {
         this.bodyContent = new ArrayList<>();
