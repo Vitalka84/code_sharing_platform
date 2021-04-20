@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import platform.models.SharedCode;
 import platform.storage.SharedCodeDAO;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class MainController {
                         .body(response.getHtml());
             } else if ("latest".equals(action)) {
                 htmlResponse.setTitle("Latest");
-                latestN = sharedCodeDAO.findTop10ByOrderByRecordIdDesc();
+                latestN = sharedCodeDAO.findTop10();
                 if (!latestN.isEmpty()) {
                     for (SharedCode sharedCode : latestN) {
                         divBlockBuilderList.add(sharedCode.getDivBlock());
@@ -56,7 +57,7 @@ public class MainController {
                 }
             } else {
                 UUID recordUUID = UUID.fromString(action);
-                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID);
+                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID, Instant.now().getEpochSecond());
                 if (requestedCode == null) {
                     return ResponseEntity.notFound()
                             .headers(httpHeaders)
@@ -85,7 +86,7 @@ public class MainController {
         response = new Response();
         if ("code".equals(endPoint)) {
             if ("latest".equals(action)) {
-                SharedCode[] latestA = sharedCodeDAO.findTop10ByOrderByRecordIdDesc().stream().toArray(SharedCode[]::new);
+                SharedCode[] latestA = sharedCodeDAO.findTop10().stream().toArray(SharedCode[]::new);
                 if (latestA.length > 0) {
                     StringBuilder jsonRespons = new StringBuilder();
                     jsonRespons.append("[");
@@ -107,7 +108,7 @@ public class MainController {
                 }
             } else {
                 UUID recordUUID = UUID.fromString(action);
-                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID);
+                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID, Instant.now().getEpochSecond());
                 if (requestedCode == null) {
                     return ResponseEntity.notFound()
                             .headers(httpHeaders)
@@ -132,7 +133,7 @@ public class MainController {
         sharedCode = new SharedCode();
         sharedCode.setRecordUUID(UUID.randomUUID());
         sharedCode.setSharedCode(code.getCode());
-        sharedCode.setDate(LocalDateTime.now());
+        sharedCode.setDateUnixTime(LocalDateTime.now());
         sharedCode.setViewingTime(code.getTime());
         sharedCode.setAllowedViews(code.getViews());
         sharedCodeDAO.save(sharedCode);

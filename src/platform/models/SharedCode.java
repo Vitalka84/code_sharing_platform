@@ -4,9 +4,13 @@ import org.hibernate.annotations.ColumnDefault;
 import platform.DivBlockBuilder;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.util.TimeZone;
 import java.util.UUID;
 
 @Entity
@@ -23,8 +27,8 @@ public class SharedCode {
 //    @ColumnDefault("random_uuid()")
     private UUID recordUUID;
 
-    @Column(name = "date", columnDefinition = "DATETIME NOT NULL")
-    private LocalDateTime date;
+    @Column(name = "date_unix_time")
+    private long dateUnixTime;
 
     @Column(name = "shared_code", columnDefinition = "CLOB")
     private String sharedCode;
@@ -41,11 +45,12 @@ public class SharedCode {
     private int viewingTime;
 
     public LocalDateTime getDate() {
-        return date;
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(dateUnixTime), TimeZone.getDefault().toZoneId());
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setDateUnixTime(LocalDateTime date) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        this.dateUnixTime = date.atZone(zoneId).toEpochSecond();
     }
 
     public int getRecordId() {
@@ -104,15 +109,15 @@ public class SharedCode {
         if (viewingTime == 0) {
             return 0;
         }
-        long remainingSeconds = ChronoUnit.SECONDS.between(LocalDateTime.now(), date.plusSeconds(viewingTime));
+        long remainingSeconds = dateUnixTime + viewingTime - LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
         return remainingSeconds > 0 ? remainingSeconds : 0;
     }
 
     public DivBlockBuilder getDivBlock() {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         DivBlockBuilder divBlock = new DivBlockBuilder();
-        if (this.date != null) {
-            divBlock.addTag(this.date.format(format), "span", "load_date", null);
+        if (this.dateUnixTime > 0) {
+            divBlock.addTag(getDate().format(format), "span", "load_date", null);
         }
         if (this.sharedCode != null) {
             String codeTag = divBlock.genTag(this.sharedCode, "code", null, null);
@@ -128,8 +133,8 @@ public class SharedCode {
         if (sharedCode != null) {
             builder.append("\"code\":\"").append(sharedCode.replace("\n", "\\n")).append("\"");
         }
-        if (date != null) {
-            builder.append(",\"date\":\"").append(date.format(format)).append("\"");
+        if (dateUnixTime > 0) {
+            builder.append(",\"date\":\"").append(getDate().format(format)).append("\"");
         }
         builder.append(",\"time\":").append(getRemainingSeconds());
         builder.append(",\"views\":").append(views);
