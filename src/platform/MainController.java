@@ -13,6 +13,7 @@ import platform.storage.SharedCodeDAO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class MainController {
@@ -54,13 +55,15 @@ public class MainController {
                             .build();
                 }
             } else {
-                int id = Integer.parseInt(action);
-                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordId(id);
+                UUID recordUUID = UUID.fromString(action);
+                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID);
                 if (requestedCode == null) {
                     return ResponseEntity.notFound()
                             .headers(httpHeaders)
                             .build();
                 } else {
+                    requestedCode.addView();
+                    sharedCodeDAO.save(requestedCode);
                     divBlockBuilderList.add(requestedCode.getDivBlock());
                 }
             }
@@ -103,13 +106,15 @@ public class MainController {
                             .build();
                 }
             } else {
-                int id = Integer.parseInt(action);
-                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordId(id);
+                UUID recordUUID = UUID.fromString(action);
+                SharedCode requestedCode = sharedCodeDAO.findSharedCodeByRecordUUID(recordUUID);
                 if (requestedCode == null) {
                     return ResponseEntity.notFound()
                             .headers(httpHeaders)
                             .build();
                 } else {
+                    requestedCode.addView();
+                    sharedCodeDAO.save(requestedCode);
                     return ResponseEntity.ok()
                             .headers(httpHeaders)
                             .body(requestedCode.getJson());
@@ -121,17 +126,20 @@ public class MainController {
     }
 
     @PostMapping(value = {"api/{endPoint}/{action}"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> apiPostHandler(@PathVariable String endPoint, @PathVariable String action, @RequestBody String code) {
+    public ResponseEntity<String> apiPostHandler(@PathVariable String endPoint, @PathVariable String action, @RequestBody Request code) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Content-Type", "application/json");
         sharedCode = new SharedCode();
-        sharedCode.setSharedCode(code);
+        sharedCode.setRecordUUID(UUID.randomUUID());
+        sharedCode.setSharedCode(code.getCode());
         sharedCode.setDate(LocalDateTime.now());
+        sharedCode.setViewingTime(code.getTime());
+        sharedCode.setAllowedViews(code.getViews());
         sharedCodeDAO.save(sharedCode);
         if ("code".equals(endPoint) && "new".equals(action)) {
             return ResponseEntity.ok()
                     .headers(httpHeaders)
-                    .body("{\"id\":\"" + sharedCode.getRecordId() + "\"}");
+                    .body("{\"id\":\"" + sharedCode.getRecordUUID() + "\"}");
         } else {
             return null;
         }

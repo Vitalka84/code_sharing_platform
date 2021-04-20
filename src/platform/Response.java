@@ -60,17 +60,4 @@ public class Response {
         }
         return divBlock;
     }
-
-    public String getJson() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{");
-        if (code != null) {
-            builder.append("\"code\":\"").append(code.replace("\n", "\\n")).append("\"");
-        }
-        if (date != null) {
-            builder.append(",\"date\":\"").append(date.format(format)).append("\"");
-        }
-        builder.append("}");
-        return builder.toString();
-    }
 }
