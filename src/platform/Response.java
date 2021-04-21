@@ -49,15 +49,4 @@ public class Response {
         this.date = date;
     }
 
-    public DivBlockBuilder getDivBlock() {
-        DivBlockBuilder divBlock = new DivBlockBuilder();
-        if (this.date != null) {
-            divBlock.addTag(this.date.format(format), "span", "load_date", null);
-        }
-        if (this.code != null) {
-            String codeTag = divBlock.genTag(this.code, "code", null, null);
-            divBlock.addTag(codeTag, "pre", "code_snippet", null);
-        }
-        return divBlock;
-    }
 }

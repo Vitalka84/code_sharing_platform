@@ -36,6 +36,10 @@ public class DivBlockBuilder {
         }
     }
 
+    public void addBr() {
+        this.divContent.add("<br>");
+    }
+
     public String genTag(String data, String wrapper, String id, String cssClass) {
         newTag = new StringBuilder();
         if (data != null && !"".equals(data)) {

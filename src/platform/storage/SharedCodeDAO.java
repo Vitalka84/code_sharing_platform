@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import platform.models.SharedCode;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +20,6 @@ public interface SharedCodeDAO extends CrudRepository<SharedCode, Integer>, Pagi
             "and sc.recordUUID =:recordUUID")
     SharedCode findSharedCodeByRecordUUID(@Param("recordUUID") UUID recordUUID, @Param("currentTimeStamp") long currentTimeStamp);
 
-    @Query("select sc from SharedCode sc where sc.viewingTime=0 and sc.allowedViews=0 order by sc.recordId desc")
+    @Query(nativeQuery = true, value = "select sc.* from shared_codes sc where sc.VIEWING_TIME=0 and sc.ALLOWED_VIEWS=0 order by sc.RECORD_ID desc limit 10")
     List<SharedCode> findTop10();
 }

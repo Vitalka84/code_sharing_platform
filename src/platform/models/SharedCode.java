@@ -4,11 +4,10 @@ import org.hibernate.annotations.ColumnDefault;
 import platform.DivBlockBuilder;
 
 import javax.persistence.*;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -109,7 +108,7 @@ public class SharedCode {
         if (viewingTime == 0) {
             return 0;
         }
-        long remainingSeconds = dateUnixTime + viewingTime - LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+        long remainingSeconds = dateUnixTime + viewingTime - LocalDateTime.now().toEpochSecond(OffsetDateTime.now().getOffset());
         return remainingSeconds > 0 ? remainingSeconds : 0;
     }
 
@@ -118,6 +117,15 @@ public class SharedCode {
         DivBlockBuilder divBlock = new DivBlockBuilder();
         if (this.dateUnixTime > 0) {
             divBlock.addTag(getDate().format(format), "span", "load_date", null);
+            divBlock.addBr();
+        }
+        if (this.allowedViews > 0) {
+            divBlock.addTag((allowedViews - views) + " more views allowed", "span", "views_restriction", null);
+            divBlock.addBr();
+        }
+        if (this.viewingTime > 0) {
+            divBlock.addTag("The code will be available for " + getRemainingSeconds() + " seconds", "span", "time_restriction", null);
+            divBlock.addBr();
         }
         if (this.sharedCode != null) {
             String codeTag = divBlock.genTag(this.sharedCode, "code", null, null);
@@ -137,7 +145,7 @@ public class SharedCode {
             builder.append(",\"date\":\"").append(getDate().format(format)).append("\"");
         }
         builder.append(",\"time\":").append(getRemainingSeconds());
-        builder.append(",\"views\":").append(views);
+        builder.append(",\"views\":").append(allowedViews > 0 ? allowedViews - views : 0);
         builder.append("}");
         return builder.toString();
     }

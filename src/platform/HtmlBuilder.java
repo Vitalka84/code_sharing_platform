@@ -83,7 +83,9 @@ public class HtmlBuilder {
 
     public void setTextAreaWrapper(String data) {
         if (data != null && !"".equals(data)) {
-            this.bodyContent.add("<textarea id=\"code_snippet\">" + data + "</textarea><br>");
+            this.bodyContent.add("<textarea id=\"code_snippet\">" + data + "</textarea><br><br>");
+            this.bodyContent.add("<span>Time restriction: </span><input id=\"time_restriction\" type=\"text\"/><br><br>");
+            this.bodyContent.add("<span>Views restriction: </span><input id=\"views_restriction\" type=\"text\"/><br><br>");
             this.bodyContent.add("<button id=\"send_snippet\" type=\"submit\" onclick=\"send()\">Submit</button>");
             this.jsFunctions.add(getSendJsFunction());
         }
@@ -131,7 +133,9 @@ public class HtmlBuilder {
     private String getSendJsFunction() {
         return "function send() {\n" +
                 "    let object = {\n" +
-                "        \"code\": document.getElementById(\"code_snippet\").value\n" +
+                "           \"code\": document.getElementById(\"code_snippet\").value," +
+                "           \"time\":document.getElementById(\"time_restriction\").value," +
+                "           \"views\":document.getElementById(\"views_restriction\").value\n" +
                 "    };\n" +
                 "    let json = JSON.stringify(object);\n" +
                 "    let xhr = new XMLHttpRequest();\n" +
@@ -139,7 +143,7 @@ public class HtmlBuilder {
                 "    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');\n" +
                 "    xhr.send(json);\n" +
                 "    if (xhr.status == 200) {\n" +
-                "      alert(\"Success!\");\n" +
+                "      alert(xhr.response);\n" +
                 "    }\n" +
                 "}";
     }
